@@ -8,8 +8,8 @@ namespace KararAğacı
 {
     class Ağaç
     {
-        public string değer = "";
-        public string isim = "";
+        public string değer = "";   //sütün cevabı
+        public string isim = "";    //sütün isimi
         public string sınıf = "";
         public List<Ağaç> AltListe = new List<Ağaç>();
     }

@@ -67,19 +67,86 @@ namespace KararAğacı
             
             string[] file = File.ReadAllLines("C:\\Users\\Eren\\Desktop\\KararAğacı\\Örnek.csv");
 
-            List<GAIN> GainList = Gain(file, "Decision");
+            Ağaç ağaç = new Ağaç();
 
-            GAIN Enbüyük = GAIN.EnBüyük(GainList);
-            foreach (var i in Enbüyük.histo)
-            {
-                string[] altdizi = altDizi(file, i, Enbüyük.isim);
-                foreach(var K in Gain(altdizi, "Decision"))
-                {
-                    Console.WriteLine(K.isim + " " + K.değer);
-                }
-            }
+            AğacıDoldur(ağaç, file, "Decision");
+
+            AğacıYaz(ağaç);
+
+            ağacıDosyayaYaz(ağaç);
 
             Console.ReadLine();
+        }
+
+        public static void AğacıDoldur(Ağaç ağaç,string[] dizi,string cevapSütun)
+        {
+            string[] sonuçlar = new string[dizi.Length - 1];
+            int konum = Array.IndexOf(dizi[0].Split(sep), cevapSütun);
+
+            for (int i = 0; i < dizi.Length - 1; i++)
+            {
+                sonuçlar[i] = dizi[i + 1].Split(sep)[konum];
+            }
+            double EntropiG = Entropi(sonuçlar);
+
+            if (EntropiG == 0)
+            {
+                ağaç.sınıf = dizi[1].Split(sep)[konum];
+            }
+            else
+            {
+                List<GAIN> GainList = Gain(dizi,cevapSütun);
+                GAIN Enbüyük = GAIN.EnBüyük(GainList);
+                ağaç.isim = Enbüyük.isim;
+
+                foreach (var dal in Enbüyük.histo)
+                {
+                    Ağaç AltAğaç = new Ağaç();
+                    AltAğaç.değer = dal.isim;
+
+                    string[] AltDizi = altDizi(dizi, dal, Enbüyük.isim);
+
+                    ağaç.AltListe.Add(AltAğaç);
+
+                    AğacıDoldur(AltAğaç, AltDizi, cevapSütun);
+                }
+
+            }
+
+        }
+        
+        public static void AğacıYaz(Ağaç ağaç,string boşluk="")
+        {
+            if (ağaç.AltListe.Count!=0)
+            {
+                foreach (var dal in ağaç.AltListe)
+                {
+                    Console.WriteLine(boşluk + ağaç.isim + ":" + dal.değer);
+                    AğacıYaz(dal, boşluk + "    ");
+                }
+                
+            }
+            else
+            {
+                Console.WriteLine(boşluk + ağaç.sınıf);
+            }
+        }
+
+        public static void ağacıDosyayaYaz(Ağaç ağaç, string dosya = "ağaçdosyası.txt",string boşluk="")
+        {
+            if (ağaç.AltListe.Count != 0)
+            {
+                foreach (var dal in ağaç.AltListe)
+                {
+                    File.AppendAllText(dosya,boşluk + ağaç.isim + ":" + dal.değer+"\r\n");
+                    ağacıDosyayaYaz(dal,dosya, boşluk + "    ");
+                }
+
+            }
+            else
+            {
+                File.AppendAllText(dosya,boşluk + ağaç.sınıf+"\r\n");
+            }
         }
 
         public static List<GAIN> Gain(string[] dizi,string cevapSütun)
