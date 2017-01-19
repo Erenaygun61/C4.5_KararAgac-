@@ -84,6 +84,7 @@ namespace KararAğacı
         {
             int doğru = 0;
             int yanlış = 0;
+            List<string> yanlışlar = new List<string>();
             for (int i = 1; i < dizi.Length; i++)
             {
                 string item = dizi[i];
@@ -94,8 +95,10 @@ namespace KararAğacı
                 else
                 {
                     yanlış += 1;
+                    yanlışlar.Add(dizi[i]);
                 }
             }
+            File.WriteAllText("yanlışCevaplar.txt",string.Join("\r\n", yanlışlar.ToArray()));
             return "Doğru Sayısı= " + doğru.ToString() + " , Yanlış Sayısı= " + yanlış.ToString() + " , Başarı= % " + ((double)doğru / (doğru + yanlış)) * 100;
         }
 
